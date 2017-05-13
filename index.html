@@ -11,13 +11,37 @@
             background-color: pink;
             width:100px;
             height: 100px;
+            transform: translate(100px,100px);
+            position: absolute;
+            left: 100px;
+        }
+        .app{
+            background-color: pink;
+            width:100px;
+            height: 100px;
+            transform: translate(100px,100px);
+            position: absolute;
+            left: 100px;
         }
     </style>
 </head>
 <body>
-    <div id='app'></div>
+    <!-- <div id='app'></div> -->
+    <div class='app'></div>
+    <div class='app' style='left:0;background-color:red'></div>
     <script>
-        new Draggable('#app');
+    // new Draggable('#app',{
+    //     axis:'x',
+    //     grid:{x:40},
+    //     addClassName:'is-dragging',
+    //     backToPosition:true
+    // });
+    var elems=document.querySelectorAll('.app');
+    var elemArray=[].slice.apply(elems);
+    console.log(elemArray)
+    elemArray.forEach(function(elem){
+        new Draggable(elem);
+    })
     </script>
 </body>
 </html>

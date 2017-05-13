@@ -6,11 +6,83 @@
 
 直接从`src`文件夹中引入即可
 
-## 用法
-
-目前上传第一个版本，没有开放任何`API`，用法如下
+## Usage
 
     <div id='app'></div>
-    <script>
-        new Draggable('#app');
-    </script>
+
+可以直接传入选择器
+
+    new Draggable('#app');
+
+或者传入DOM节点
+
+    var elem=document.querySelector('#app');
+    new Draggable(elem);
+
+如果需要为多个元素添加拖拽，请循环遍历
+
+    var elems=document.querySelectorAll('.app');
+    var elemArray=[].slice.apply(elems);
+    elemArray.forEach(function(elem){
+        new Draggable(elem);
+    })
+
+## API
+
+## API一览
+    new Draggable('#app',{
+        axis:'x',
+        grid:{x:40},
+        addClassName:'is-dragging',
+        backToPosition:true
+    });
+
+### axis
+
+设置该参数表明只允许某个方向可拖拽
+
+    new Draggable('#app',{
+        axis:'x'
+    });
+
+### grid
+
+设置拖拽的时候移动的单位
+
+    new Draggable('#app',{
+        grid:{x:40,y:40}
+    });
+
+### backToPosition
+
+默认的拖拽动画是通过`transform`属性实现的，所以如果想使用`position`属性实现拖拽动画可以使用该参数
+
+    new Draggable('#app',{
+        backToPosition:true
+    });
+
+**如果需要兼容到IE8，请确保开启了此API**
+
+### addClassName
+
+为拖拽的过程添加`className`，方便增加拖拽样式
+
+    new Draggable('#app',{
+        addClassName:'is-dragging'
+    });
+
+### cursor
+
+在初始化的时候默认为可拖拽的元素添加`cursor:move`属性，如果需要取消可以
+
+    new Draggable('#app',{
+        cursorCancel:true
+    });
+
+## 后期版本迭代
+
+兼容IE8。
+增加AMD规范。
+增加事件绑定接口。
+添加完善的错误输出，方便调试。
+加上zIndex接口，让移动元素总在最顶层。
