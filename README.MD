@@ -21,11 +21,10 @@
 
 如果需要为多个元素添加拖拽，请循环遍历
 
-    var elems=document.querySelectorAll('.app');
-    var elemArray=[].slice.apply(elems);
-    elemArray.forEach(function(elem){
-        new Draggable(elem);
-    })
+    var elem=document.querySelectorAll('.app');
+    for(var i=0,len=elem.length;i<len;i++){
+        new Draggable(elem[i]);
+    }
 
 ## API
 
@@ -34,7 +33,8 @@
         axis:'x',
         grid:{x:40},
         addClassName:'is-dragging',
-        backToPosition:true
+        backToPosition:true,
+        cursorCancel:false
     });
 
 ### axis
@@ -61,7 +61,7 @@
         backToPosition:true
     });
 
-**如果需要兼容到IE8，请确保开启了此API**
+**在IE8下会自动回退到使用`position`实现拖拽**
 
 ### addClassName
 
@@ -81,8 +81,10 @@
 
 ## 后期版本迭代
 
-兼容IE8。
-增加AMD规范。
-增加事件绑定接口。
-添加完善的错误输出，方便调试。
-加上zIndex接口，让移动元素总在最顶层。
+- safari上还存在bug。
+- 兼容IE8。 已经完成。
+- 增加AMD规范。
+- 增加事件绑定接口。
+- 增加container接口。
+- 添加完善的错误输出，方便调试。
+- 加上zIndex接口，让移动元素总在最顶层。

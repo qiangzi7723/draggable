@@ -19,7 +19,6 @@
             background-color: pink;
             width:100px;
             height: 100px;
-            transform: translate(100px,100px);
             position: absolute;
             left: 100px;
         }
@@ -36,12 +35,10 @@
     //     addClassName:'is-dragging',
     //     backToPosition:true
     // });
-    var elems=document.querySelectorAll('.app');
-    var elemArray=[].slice.apply(elems);
-    console.log(elemArray)
-    elemArray.forEach(function(elem){
-        new Draggable(elem);
-    })
+    var elem=document.querySelectorAll('.app');
+    for(var i=0,len=elem.length;i<len;i++){
+        new Draggable(elem[i]);
+    }
     </script>
 </body>
 </html>
