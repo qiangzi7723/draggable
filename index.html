@@ -7,11 +7,16 @@
     <title>Document</title>
     <script src='./src/draggable.js'></script>
     <style>
+        #container{
+            width:300px;
+            height: 300px;
+            background-color: blue;
+            position: relative;
+        }
         #app{
             background-color: pink;
             width:100px;
             height: 100px;
-            transform: translate(100px,100px);
             position: absolute;
             left: 100px;
         }
@@ -25,20 +30,23 @@
     </style>
 </head>
 <body>
-    <!-- <div id='app'></div> -->
-    <div class='app'></div>
-    <div class='app' style='left:0;background-color:red'></div>
+    <div id='container'>
+        <div id='app'></div>
+    </div>
+    <!-- <div class='app'></div> -->
+    <!-- <div class='app' style='left:0;background-color:red'></div> -->
     <script>
-    // new Draggable('#app',{
-    //     axis:'x',
-    //     grid:{x:40},
-    //     addClassName:'is-dragging',
-    //     backToPosition:true
-    // });
-    var elem=document.querySelectorAll('.app');
-    for(var i=0,len=elem.length;i<len;i++){
-        new Draggable(elem[i]);
-    }
+    new Draggable('#app',{
+        parentMove:'#container',
+        // axis:'x',
+        // grid:{x:40},
+        addClassName:'is-dragging',
+        // backToPosition:true
+    });
+    // var elem=document.querySelectorAll('.app');
+    // for(var i=0,len=elem.length;i<len;i++){
+    //     new Draggable(elem[i]);
+    // }
     </script>
 </body>
 </html>

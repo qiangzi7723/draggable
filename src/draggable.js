@@ -1,15 +1,7 @@
 (function(window) {
-    // 目标 兼容到IE8
+    // 加入AMD
     // 需要开放的接口
-    // axis只允许哪条轴移动
     // 事件的绑定
-    // grid移动单位
-    // 兼容transform
-    // 兼容transform延伸的问题 完全兼容transfrom 比如scale属性
-    // 目前可以兼容元素设置了translate的情况 但是如果元素还设置了scale等的话暂时无法兼容
-    // 解决方案有两种 完美兼容transform所有属性 或者开启替代方案，完全使用position实现整个拖拽
-    // 选择器的问题
-    // Util
     // 加上右键检测
     // input是否添加？
     var Util = function() {
@@ -17,20 +9,19 @@
     }
 
     Util.prototype.checkIsTouch = function() {
-        return 'ontouchstart' in window
-            ||
+        return 'ontouchstart' in window ||
             navigator.maxTouchPoints;
     }
 
     Util.prototype.hackRequestAnimationFrame = function(arguments) {
         window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
         if (!window.requestAnimationFrame) {
-            var lastTime=0;
-            window.requestAnimationFrame=function(callback){
-                var now=new Date().getTime();
-                var time=Math.max(16-now-lastTime,0);
-                var id=setTimeout(callback,time);
-                lastTime=now+time;
+            var lastTime = 0;
+            window.requestAnimationFrame = function(callback) {
+                var now = new Date().getTime();
+                var time = Math.max(16 - now - lastTime, 0);
+                var id = setTimeout(callback, time);
+                lastTime = now + time;
                 return id;
             }
         }
@@ -42,35 +33,41 @@
             'transform' : 'WebkitTransform';
     }
 
-    Util.prototype.hackEventListener=function(){
-        if(document.addEventListener) this.eventListener=true;
+    Util.prototype.hackEventListener = function() {
+        if (document.addEventListener) this.eventListener = true;
     }
 
-    Util.prototype.hackStyle=function(elem){
-        if(window.getComputedStyle){
+    Util.prototype.hackStyle = function(elem) {
+        if (window.getComputedStyle) {
             return window.getComputedStyle(elem);
-        }else{
+        } else {
             return elem.currentStyle;
         }
     }
 
     // Draggable
     var Draggable = function(elem, options) {
-        this.options = options||{};
-        // elem有可能传选择器，也有可能传节点 节点可单个可多个
-        if (typeof elem === 'string') {
-            // 说明是选择器
-            this.elem = document.querySelector(elem);
-        }else{
-            this.elem=elem;
-        }
+        this.options = options || {};
+        this.options.elemString = elem;
         this.init();
     }
     // 为了兼容IE8 只能放弃使用Object.create()实现继承
+    // var proto = Draggable.prototype = Object.create(Util.prototype);
     var proto = Draggable.prototype = new Util();
+    proto.setTargetDom = function() {
+        this.elem = this.getDom(this.options.elemString);
+        this.parentMove = this.getDom(this.options.parentMove);
+        this.targetDom = this.parentMove || this.elem;
+    }
+    proto.getDom = function(elem) {
+        if (typeof elem === 'string') {
+            return document.querySelector(elem);
+        } else {
+            return elem;
+        }
+    }
     proto.render = function() {
-        var context = this;
-        // 兼容requestAnimationFrame
+        var context = this
         this.hackRequestAnimationFrame();
         this._render = function() {
             if (!context.enable) {
@@ -84,62 +81,67 @@
     }
     proto.setTransform = function() {
         if (!this.options.backToPosition) {
-            this.elem.style[this.transformProperty] = 'translate3d(' + this.movePoint.x + 'px,' + this.movePoint.y + 'px,' + '0)';
+            this.targetDom.style[this.transformProperty] = 'translate3d(' + this.movePoint.x + 'px,' + this.movePoint.y + 'px,' + '0)';
         } else {
-            this.elem.style.left = this.movePoint.x + this.elemPosition.x + 'px';
-            this.elem.style.top = this.movePoint.y + this.elemPosition.y + 'px';
+            var cssString = 'left:' + (this.movePoint.x + this.elemPosition.x) + 'px;top:' + (this.movePoint.y + this.elemPosition.y) + 'px;';
+            // cssText会覆盖原样式 所以需要写+ 另外;是为了兼容IE8的cssText不返回; 不加上会出BUG
+            this.targetDom.style.cssText += ';' + cssString;
         }
     }
     // 事件绑定只做两种 分别是mousemove touchmove
     proto.init = function() {
-        v=this;
-        var context=this;
+        v = this;
+        var context = this;
+        this.setTargetDom();
         this.hackEventListener();
-        if(!this.eventListener) this.options.backToPosition=true;
+        if (!this.eventListener) this.options.backToPosition = true;
         if (this.checkIsTouch()) {
             // 说明是手机端
             this.elem.addEventListener('touchstart', this);
         } else {
-            if(this.eventListener){
+            if (this.eventListener) {
                 this.elem.addEventListener('mousedown', this);
-            }else{
+            } else {
                 this.bindAttach();
                 // 为了兼容IE8 优雅的代码全部需要改写
-                this.elem.attachEvent('onmousedown',this.b_mousedown);
+                this.elem.attachEvent('onmousedown', this.b_mousedown);
             }
         }
-        if(!this.options.cursorCancel) this.elem.style.cursor='move';
+        if (!this.options.cursorCancel) this.elem.style.cursor = 'move';
     }
-    proto.bindAttach=function(){
-        var context=this;
-        var type=['mousedown','mousemove','mouseup'];
-        for(var i=0,len=type.length;i<len;i++){
-            this['b_'+type[i]]=(function(i){
-                return function(){
-                    context.event=window.event;
+    proto.bindAttach = function() {
+        var context = this;
+        var type = ['mousedown', 'mousemove', 'mouseup'];
+        for (var i = 0, len = type.length; i < len; i++) {
+            this['b_' + type[i]] = (function(i) {
+                return function() {
+                    context.event = window.event;
                     context[type[i]]();
                 }
             }(i))
         }
     }
     proto.dragDown = function(event) {
-        this.hackTransform();
         this.enable = true;
-        // 需要把初始的position记录下来 并且转化transform以及设置position
-        if(this.options.addClassName){
-            this.elem.className += ' '+this.options.addClassName;
-        }
-        this.style = this.hackStyle(this.elem);
-        this.elem.style.zIndex=2147483647;
+        this.hackTransform();
+        this.addClassName();
+        this.setIndex();
+        this.style = this.hackStyle(this.targetDom);
         this.elemPosition = this.getPosition(this.style);
         this.startPoint = this.getCoordinate();
         this.movePoint = {
             x: 0,
             y: 0
         };
-        this.setPositionProperty(this.style);
+        this.setPositionProperty();
         this.bindCallBackEvent();
         this.render();
+    }
+    proto.setIndex=function(){
+        // this.elem.style.zIndex=2147483647;
+    }
+    proto.addClassName=function(){
+        if (this.options.addClassName) this.elem.className += ' ' + this.options.addClassName;
     }
     // 绑定之后的事件 比如mousemove和mouseup
     proto.bindCallBackEvent = function() {
@@ -155,32 +157,32 @@
         this.bindEvent(true);
     }
     // 绑定以及解绑mousemove mouseup
-    proto.bindEvent=function(isBind){
-        var context=this;
-        var handles=this.handles;
-        if(this.eventListener){
-            var eventListener=isBind?'addEventListener':'removeEventListener';
+    proto.bindEvent = function(isBind) {
+        var context = this;
+        var handles = this.handles;
+        if (this.eventListener) {
+            var eventListener = isBind ? 'addEventListener' : 'removeEventListener';
             handles.forEach(function(handle) {
                 window[eventListener](handle, context);
             })
-        }else{
-            var eventListener=isBind?'attachEvent':'detachEvent';
-            document[eventListener]('onmousemove',this.b_mousemove);
-            document[eventListener]('onmouseup',this.b_mouseup);
+        } else {
+            var eventListener = isBind ? 'attachEvent' : 'detachEvent';
+            document[eventListener]('onmousemove', this.b_mousemove);
+            document[eventListener]('onmouseup', this.b_mouseup);
         }
 
     }
-    proto.setPositionProperty = function(style) {
+    proto.setPositionProperty = function() {
         var p = {
             fix: true,
             absolute: true,
             relative: true
         };
-        if (!p[style.position]) {
-            this.elem.style.position = 'relative';
+        if (!p[this.style.position]) {
+            this.targetDom.style.position = 'relative';
         }
-        this.elem.style.left = this.elemPosition.x + 'px';
-        this.elem.style.top = this.elemPosition.y + 'px';
+        this.targetDom.style.left = this.elemPosition.x + 'px';
+        this.targetDom.style.top = this.elemPosition.y + 'px';
     }
     // getPosition除了获取元素的position值之外 还需要考虑transform的影响
     proto.getPosition = function(style) {
@@ -198,7 +200,7 @@
     proto.addTransform = function(position) {
         // 在IE8下返回null
         var transform = this.style[this.transformProperty];
-        if (!transform||transform.indexOf('matrix') == '-1') {
+        if (!transform || transform.indexOf('matrix') == '-1') {
             // 说明transform属性不存在
             return position;
         }
@@ -236,39 +238,41 @@
     proto.dragUp = function() {
         var context = this;
         this.enable = false;
-        if(this.options.addClassName){
-            var re = new RegExp("(?:^|\\s)"+this.options.addClassName+"(?:\\s|$)","g");
-            this.elem.className = this.elem.className.replace(re,'');
-        }
-        // 解绑事件
+        this.removeClassName();
         this.bindEvent(false);
-        // 开启了回退position 一切与transform有关的操作都不需要
+        this.resetIndex();
         if (this.options.backToPosition) return;
-        // 把transform转换为position
         this.resetPosition();
+    }
+    proto.removeClassName=function(){
+        if (this.options.addClassName) {
+            var re = new RegExp("(?:^|\\s)" + this.options.addClassName + "(?:\\s|$)", "g");
+            this.elem.className = this.elem.className.replace(re, '');
+        }
+    }
+    proto.resetIndex=function(){
+        // this.elem.style.zIndex='';
     }
     proto.resetPosition = function() {
         this.endPoint = {
             x: this.movePoint.x + this.elemPosition.x,
             y: this.movePoint.y + this.elemPosition.y
         }
-        this.elem.style.left = this.endPoint.x + 'px';
-        this.elem.style.top = this.endPoint.y + 'px';
-        this.elem.style.transform = 'translate3d(0,0,0)';
-        this.elem.style.zIndex='';
+        this.targetDom.style.cssText+=';left:'+this.endPoint.x + 'px;top:'+this.endPoint.y + 'px;transform:translate3d(0,0,0)';
     }
     // 获取坐标
     proto.getCoordinate = function() {
-        if(this.eventListener){
+        if (this.eventListener) {
             return {
-                x: this.event.pageX || this.event.touches[0].pageX,
-                y: this.event.pageY || this.event.touches[0].pageY
+                // 最后的0是为了避免当 this.event.pageX==0 的时候会取 touches[0] 的值
+                x: this.event.pageX || (this.event.touches && this.event.touches[0].pageX) || 0,
+                y: this.event.pageY || (this.event.touches && this.event.touches[0].pageY) || 0
             }
-        }else{
-            return{
+        } else {
+            return {
                 // 兼容IE8的鼠标位置获取
-                x:this.event.clientX+document.documentElement.scrollLeft,
-                y:this.event.clientY+document.documentElement.scrollTop
+                x: this.event.clientX + document.documentElement.scrollLeft,
+                y: this.event.clientY + document.documentElement.scrollTop
             }
         }
 
@@ -294,7 +298,7 @@
     // 通过handleEvent绑定事件
     proto.handleEvent = function(event) {
         this.event = event;
-        var type=this.event.type;
+        var type = this.event.type;
         if (type) this[type]();
     }
     window.Draggable = Draggable;

@@ -34,8 +34,30 @@
         grid:{x:40},
         addClassName:'is-dragging',
         backToPosition:true,
-        cursorCancel:false
+        cursorCancel:false,
+        parentMove:'#container'
     });
+
+
+### backToPosition
+
+默认的拖拽动画是通过`transform`属性实现的，所以如果想使用`position`属性实现拖拽动画可以使用该参数
+
+    new Draggable('#app',{
+        backToPosition:true
+    });
+
+**在IE8下会自动回退到使用`position`实现拖拽**
+
+### parentMove
+
+通过设置`parentMove`可以设置移动的父元素，如
+
+    new Draggable('#app',{
+        parentMove:'#container'
+    });
+
+表明当点击`app`元素时，`app`元素不会被拖拽，拖拽移动的是整个的`container`元素，这个API在需要定义顶部拖拽条的时候很有用
 
 ### axis
 
@@ -52,16 +74,6 @@
     new Draggable('#app',{
         grid:{x:40,y:40}
     });
-
-### backToPosition
-
-默认的拖拽动画是通过`transform`属性实现的，所以如果想使用`position`属性实现拖拽动画可以使用该参数
-
-    new Draggable('#app',{
-        backToPosition:true
-    });
-
-**在IE8下会自动回退到使用`position`实现拖拽**
 
 ### addClassName
 
