@@ -1,0 +1,19 @@
+{
+  "name": "draggable",
+  "version": "1.0.0",
+  "description": "打造跨平台的轻量级原生拖拽库",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qiangzi7723/draggable.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/qiangzi7723/draggable/issues"
+  },
+  "homepage": "https://github.com/qiangzi7723/draggable#readme"
+}
