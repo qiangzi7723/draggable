@@ -1,6 +1,10 @@
 # Draggable
 
-打造轻量级的原生拖拽库
+打造跨平台的轻量级原生拖拽库
+
+## Summary
+
+自己写的一个拖拽库，基于原生JS实现，无任何依赖，同时还做了IE8的兼容，在IE8的情况下`transform`回退到`position`实现。拖拽的动画通过绑定在`render`函数上的`requestAnimationFrame`实现而不是使用`mousemove`回调。另外库里面还写了很多的注释，方便对源码的解读与交流。如果你觉得这个库写的不错或者有值得学习的经验不妨点下右上角的`star`，谢谢各位。
 
 ## Install
 
@@ -29,15 +33,15 @@
 ## API
 
 ## API一览
+
     new Draggable('#app',{
+        parentMove:'#container',
+        backToPosition:false,
         axis:'x',
         grid:{x:40},
         addClassName:'is-dragging',
-        backToPosition:true,
         cursorCancel:false,
-        parentMove:'#container'
     });
-
 
 ### backToPosition
 
@@ -47,7 +51,7 @@
         backToPosition:true
     });
 
-**在IE8下会自动回退到使用`position`实现拖拽**
+**在IE8下会自动使用`position`实现拖拽**
 
 ### parentMove
 
@@ -93,10 +97,7 @@
 
 ## 后期版本迭代
 
-- safari上还存在bug。
-- 兼容IE8。 已经完成。
 - 增加AMD规范。
 - 增加事件绑定接口。
-- 增加container接口。
 - 添加完善的错误输出，方便调试。
 - 加上zIndex接口，让移动元素总在最顶层。
